@@ -87,7 +87,7 @@ func ReplaceDataSourceNameByDocker(dataSourceName string) string {
 	runningInDocker := os.Getenv("RUNNING_IN_DOCKER")
 	if runningInDocker == "true" {
 		// https://stackoverflow.com/questions/48546124/what-is-linux-equivalent-of-host-docker-internal
-		if runtime.GOOS == "linux" {
+		if runtime.GOOS == "linux" || runtime.GOOS == "android" {
 			dataSourceName = strings.ReplaceAll(dataSourceName, "localhost", "172.17.0.1")
 		} else {
 			dataSourceName = strings.ReplaceAll(dataSourceName, "localhost", "host.docker.internal")

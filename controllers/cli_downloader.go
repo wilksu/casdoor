@@ -78,7 +78,7 @@ func getBinaryNames() map[string]string {
 			python: fmt.Sprintf("casbin-python-cli-darwin-%s", archNames.goArch),
 			dotnet: fmt.Sprintf("casbin-dotnet-cli-darwin-%s", archNames.goArch),
 		}
-	case "linux":
+	case "linux", "android":
 		return map[string]string{
 			golang: fmt.Sprintf("casbin-go-cli_Linux_%s.tar.gz", archNames.goArch),
 			java:   "casbin-java-cli.jar",

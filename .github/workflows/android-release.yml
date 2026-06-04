@@ -1,0 +1,61 @@
+name: Android Release
+
+env:
+  GO_VERSION: "1.25.8"
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag (e.g. v1.100.0)"
+        required: true
+        type: string
+
+jobs:
+  build-android:
+    name: Build Android arm64
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+
+      - uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: ./go.mod
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: "yarn"
+          cache-dependency-path: ./web/yarn.lock
+
+      - name: Build frontend
+        run: yarn install && CI=false yarn run build
+        working-directory: ./web
+
+      - name: Cross-compile for Android arm64
+        run: |
+          CGO_ENABLED=0 GOOS=android GOARCH=arm64 go build -ldflags="-w -s" -o casdoor_android_arm64 .
+        working-directory: ./
+
+      - name: Package release
+        run: |
+          mkdir -p release
+          cp casdoor_android_arm64 release/
+          cp -r web/build release/web/
+          cp conf/app.conf release/conf/ 2>/dev/null || mkdir -p release/conf && cp conf/app.conf release/conf/
+          cd release && tar czf ../casdoor_${{ inputs.tag }}_android_arm64.tar.gz .
+
+      - name: Upload release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag }}
+          files: casdoor_${{ inputs.tag }}_android_arm64.tar.gz
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

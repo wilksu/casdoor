@@ -28,7 +28,7 @@ func getPidByPort(port int) (int, error) {
 	switch runtime.GOOS {
 	case "windows":
 		cmd = exec.Command("cmd", "/c", "netstat -ano | findstr :"+strconv.Itoa(port))
-	case "darwin", "linux":
+	case "darwin", "linux", "android":
 		cmd = exec.Command("lsof", "-t", "-i", ":"+strconv.Itoa(port))
 	default:
 		return 0, fmt.Errorf("unsupported OS: %s", runtime.GOOS)
