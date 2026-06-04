@@ -45,10 +45,10 @@ jobs:
 
       - name: Package release
         run: |
-          mkdir -p release
+          mkdir -p release/web release/conf
           cp casdoor_android_arm64 release/
-          cp -r web/build release/web/
-          cp conf/app.conf release/conf/ 2>/dev/null || mkdir -p release/conf && cp conf/app.conf release/conf/
+          cp -r web/build release/web/build
+          cp conf/app.conf release/conf/
           cd release && tar czf ../casdoor_${{ inputs.tag }}_android_arm64.tar.gz .
 
       - name: Upload release asset
